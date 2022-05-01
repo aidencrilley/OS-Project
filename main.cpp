@@ -3,6 +3,8 @@
 #include <string>
 using namespace std;
 
+int cTime, mainMem, numSerial, timeQ;
+
 class HoldQ1 {
     public:
         int value;
@@ -15,8 +17,11 @@ class HoldQ2 {
         HoldQ2* next;
 };
 
-void systemConfiguration(int time, int mainMem, int numSerial, int timeQ) {
-
+void systemConfiguration(int t, int mM, int nS, int tQ) {
+    cTime = t;
+    mainMem = mM;
+    numSerial = nS;
+    timeQ = tQ;
 }
 
 void jobArrival(int time, int jobNum, int mainMem, int numSerial, int runTime, int priority) {
