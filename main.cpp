@@ -13,46 +13,47 @@ class HoldQ2 {
         HoldQ2* next;
 };
 
-void systemConfiguration() {
+void systemConfiguration(int time, int mainMem, int numSerial, int timeQ) {
 
 }
 
-void jobArrival() {
+void jobArrival(int time, int jobNum, int mainMem, int numSerial, int runTime, int priority) {
 
 }
 
-void deviceRequest() {
+void deviceRequest(int time, int jobNum, int numDevices) {
 
 }
 
-void deviceRelease() {
+void deviceRelease(int time, int jobNum, int numDevices) {
 
 }
 
-void sysStatusDisplay() {
+void sysStatusDisplay(int time) {
 
 }
 
 int main() {
 
     int procTable[100];
+    int time = 0;
     char event = ' ';
 
     switch(event) {
         case 'C':
-            systemConfiguration();
+            //systemConfiguration();
             break;
         case 'A':
-            jobArrival();
+            //jobArrival();
             break;
         case 'Q':
-            deviceRequest();
+            //deviceRequest();
             break;
         case 'L':
-            deviceRelease();
+            //deviceRelease();
             break;
         case 'D':
-            sysStatusDisplay();
+            //sysStatusDisplay();
             break;
     }
 
