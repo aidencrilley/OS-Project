@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 using namespace std;
 
 class HoldQ1 {
@@ -35,9 +37,16 @@ void sysStatusDisplay(int time) {
 
 int main() {
 
+    ifstream inputfile;
+    inputfile.open("input.txt");
     int procTable[100];
     int time = 0;
     char event = ' ';
+    string input;
+
+    while (getline(inputfile, input)) {
+        cout << input << "\n";
+    }
 
     switch(event) {
         case 'C':
@@ -56,6 +65,8 @@ int main() {
             //sysStatusDisplay();
             break;
     }
+
+    inputfile.close();
 
     return 0;
 }
