@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 using namespace std;
 
 int cTime, mainMem, numSerial, timeQ;
@@ -50,7 +51,26 @@ int main() {
     string input;
 
     while (getline(inputfile, input)) {
-        cout << input << "\n";
+        
+        int i = 0;
+        int n = input.length();
+        char *output[10];
+        char *ptr;
+        char char_array[n+1];
+        strcpy(char_array, input.c_str());
+        ptr = strtok(char_array, " ");
+        
+        while (ptr!= NULL) {
+            output[i] = ptr;   
+            ptr = strtok (NULL, " , ");  
+            i+=1;
+        }
+        
+        for(int j = 0;j<i; j++) {
+            cout << output[j][0] << "\n";
+        }
+        
+
     }
 
     switch(event) {
@@ -76,4 +96,3 @@ int main() {
     return 0;
 }
 
-//Test Git
