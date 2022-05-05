@@ -26,7 +26,14 @@ void systemConfiguration(int t, int mM, int nS, int tQ) {
 }
 
 void jobArrival(int time, int jobNum, int mainMem, int numSerial, int runTime, int priority) {
+    // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
+    // the job is rejected never gets to one of the Hold Queues. 
 
+    // Case 2: If  there  is  not  enough  available  main  memory  for  the  job,  the  job  is  put  in  one  of  the  Hold 
+    // Queues, based on its priority, to wait for enough available main memory.
+
+    // Case 3: If there is enough main memory for the job, then a process is created for the job, the required 
+    // main memory is allocated to the process, and the process is put in the Ready Queue.  
 }
 
 void deviceRequest(int time, int jobNum, int numDevices) {
@@ -67,28 +74,13 @@ int main() {
         }
         
         for(int j = 0;j<i; j++) {
-            cout << output[j][0] << "\n";
+            cout << output[j][0] << '\n';
+            if (output[j][0] == 'C') {
+                systemConfiguration(output[1][-1], output[2][-1], output[3][-1], output[4][-1]);
+            }
         }
         
 
-    }
-
-    switch(event) {
-        case 'C':
-            //systemConfiguration();
-            break;
-        case 'A':
-            //jobArrival();
-            break;
-        case 'Q':
-            //deviceRequest();
-            break;
-        case 'L':
-            //deviceRelease();
-            break;
-        case 'D':
-            //sysStatusDisplay();
-            break;
     }
 
     inputfile.close();
