@@ -74,10 +74,21 @@ int main() {
         }
         
         for(int j = 0;j<i; j++) {
-            cout << output[j][0] << '\n';
+            cout << output[j] << '\n';
+            cout << strlen(output[j]) << '\n';
+            
+            if(output[j][0] == 'J' || output[j][0] == 'M' || output[j][0] == 'S' || output[j][0] == 'P' || output[j][0] == 'R' || (output[j][0] == 'Q' && strlen(output[j])>2) || (output[j][0] == 'D' && strlen(output[j])>2)) {
+                string new_output = output[j];
+                string x = new_output.substr(2,strlen(output[j])-1);
+                cout << x << '\n';
+                cout << stoi(x) << '\n';
+            }
+            
+        /*    
             if (output[j][0] == 'C') {
                 systemConfiguration(output[1][-1], output[2][-1], output[3][-1], output[4][-1]);
             }
+         */   
         }
         
 
@@ -86,5 +97,5 @@ int main() {
     inputfile.close();
 
     return 0;
-}
+} 
 
