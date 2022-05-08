@@ -2,27 +2,30 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <queue>
 using namespace std;
 
 int cTime, mainMem, numSerial, timeQ;
 
-class HoldQ1 {
-    public:
-        int value;
-        HoldQ1* next;
+struct job {
+    int time;
+    int jobNum; 
+    int mainMem; 
+    int numSerial; 
+    int runTime; 
+    int priority;
 };
 
-class HoldQ2 {
-    public:
-        int value;
-        HoldQ2* next;
-};
+queue<job> HoldQ1;
+queue<job> HoldQ2;
 
 void systemConfiguration(int t, int mM, int nS, int tQ) {
     cTime = t;
     mainMem = mM;
     numSerial = nS;
     timeQ = tQ;
+
+    cout << "Time " << cTime << ' ' << "Mem " << mainMem << ' ' << "Serial " << numSerial << ' ' << "Quantum " << timeQ;
 }
 
 void jobArrival(int time, int jobNum, int mainMem, int numSerial, int runTime, int priority) {
@@ -58,40 +61,24 @@ int main() {
     string input;
 
     while (getline(inputfile, input)) {
-        
-        int i = 0;
-        int n = input.length();
-        char *output[10];
-        char *ptr;
-        char char_array[n+1];
-        strcpy(char_array, input.c_str());
-        ptr = strtok(char_array, " ");
-        
-        while (ptr!= NULL) {
-            output[i] = ptr;   
-            ptr = strtok (NULL, " , ");  
-            i+=1;
-        }
-        
-        for(int j = 0;j<i; j++) {
-            cout << output[j] << '\n';
-            cout << strlen(output[j]) << '\n';
-            
-            if(output[j][0] == 'J' || output[j][0] == 'M' || output[j][0] == 'S' || output[j][0] == 'P' || output[j][0] == 'R' || (output[j][0] == 'Q' && strlen(output[j])>2) || (output[j][0] == 'D' && strlen(output[j])>2)) {
-                string new_output = output[j];
-                string x = new_output.substr(2,strlen(output[j])-1);
-                cout << x << '\n';
-                cout << stoi(x) << '\n';
-            }
-            
-        /*    
-            if (output[j][0] == 'C') {
-                systemConfiguration(output[1][-1], output[2][-1], output[3][-1], output[4][-1]);
-            }
-         */   
-        }
-        
 
+        if (input[0] == 'C') {
+
+            int mem;
+            int index;
+            int stop; 
+
+            for (int i = 0; i < input.size(); i++) {
+                if (input[i] == 'M') {
+                    stop = input.find(' ', i);
+                    cout << stop; 
+                }
+            }
+
+            //systemConfiguration(input[2] - 48, stoi(input.substr(6,9)), stoi(input.substr(12,14)), input[17] - 48);
+        }
+
+        break;
     }
 
     inputfile.close();
