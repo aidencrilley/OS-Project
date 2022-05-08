@@ -64,18 +64,25 @@ int main() {
 
         if (input[0] == 'C') {
 
-            int mem;
-            int index;
+            int t, m, s, q;
             int stop; 
 
             for (int i = 0; i < input.size(); i++) {
                 if (input[i] == 'M') {
                     stop = input.find(' ', i);
-                    cout << stop; 
+                    m = stoi(input.substr(i+2, stop));
+                }
+                else if (input[i] == 'S') {
+                    stop = input.find(' ', i);
+                    s = stoi(input.substr(i+2, stop));
+                }
+                else if (input[i] == 'Q') {
+                    stop = input.find(' ', i);
+                    q = stoi(input.substr(i+2, stop));
                 }
             }
 
-            //systemConfiguration(input[2] - 48, stoi(input.substr(6,9)), stoi(input.substr(12,14)), input[17] - 48);
+            systemConfiguration(input[2] - 48,m,s,q);
         }
 
         break;
