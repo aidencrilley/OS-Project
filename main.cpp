@@ -67,6 +67,10 @@ int main() {
             int t, m, s, q;
             int stop; 
 
+            stop = input.find(' ', 1);
+            t = stoi(input.substr(2, stop));
+
+
             for (int i = 0; i < input.size(); i++) {
                 if (input[i] == 'M') {
                     stop = input.find(' ', i);
@@ -82,7 +86,11 @@ int main() {
                 }
             }
 
-            systemConfiguration(input[2] - 48,m,s,q);
+            systemConfiguration(t,m,s,q);
+        }
+
+        else if (input[0] == 'A') {
+
         }
 
         break;
