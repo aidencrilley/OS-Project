@@ -6,7 +6,7 @@
 #include <map>
 using namespace std;
 
-int CTIME, MEMORY, SERIAL, QUANTUM;
+int CTIME = 1, MEMORY, SERIAL, QUANTUM;
 
 struct Job {
     int time;
@@ -87,7 +87,7 @@ void deviceRelease(int time, int jobNum, int numDevices) {
 }
 
 void sysStatusDisplay(int time) {
-
+    cout << "Hello" <<'\n';
 }
 
 int getNum(string input, int index) {
@@ -99,91 +99,108 @@ int main() {
 
     ifstream inputfile;
     inputfile.open("input.txt");
-    int procTable[100];
-    int time = 0;
+    //int procTable[100];
+    //int time = 0;
     char event = ' ';
     string input;
     int i = 0;
+    while(getline(inputfile, input)) {
+        
+        while (CTIME < 20) {
+            if(getNum(input, 0) == CTIME) {
 
-    while (getline(inputfile, input)) {
+            
+                if (input[0] == 'C') {
 
-        if (input[0] == 'C') {
+                    int t, m, s, q;
+                    int stop; 
 
-            int t, m, s, q;
-            int stop; 
+                    stop = input.find(' ', 2);
+                    t = stoi(input.substr(2, stop));
 
-            stop = input.find(' ', 2);
-            t = stoi(input.substr(2, stop));
+                    for (int i = 0; i < input.size(); i++) {
+                        if (input[i] == 'M') {
+                            m = getNum(input, i);
+                        }
+                        else if (input[i] == 'S') {
+                            s = getNum(input, i);
+                        }
+                        else if (input[i] == 'Q') {
+                            q = getNum(input, i);
+                        }
+                    }
 
-            for (int i = 0; i < input.size(); i++) {
-                if (input[i] == 'M') {
-                    m = getNum(input, i);
+                    systemConfiguration(t, m, s, q);
                 }
-                else if (input[i] == 'S') {
-                    s = getNum(input, i);
+
+                else if (input[0] == 'A') {
+
+                    int t, j, m, s, r, p;
+                    int stop;
+
+                    stop = input.find(' ', 2);
+                    t = stoi(input.substr(2, stop));
+
+                    for (int i = 0; i < input.size(); i++) {
+                        if (input[i] == 'J') {
+                            j = getNum(input, i);
+                        }
+                        else if (input[i] == 'M') {
+                            m = getNum(input, i);
+                        }
+                        else if (input[i] == 'S') {
+                            s = getNum(input, i);
+                        }
+                        else if (input[i] == 'R') {
+                            r = getNum(input, i);
+                        }
+                        else if (input[i] == 'P') {
+                            p = getNum(input, i);
+                        }
+                    }
+
+                    jobArrival(t, j, m, s, r, p);
                 }
-                else if (input[i] == 'Q') {
-                    q = getNum(input, i);
+
+                else if (input[0] == 'Q' || input[0] == 'L') {
+
+                    int t, j, d;
+                    int stop;
+
+                    stop = input.find(' ', 2);
+                    t = stoi(input.substr(2, stop));
+
+                    for (int i = 0; i < input.size(); i++) {
+                        if (input[i] == 'J') {
+                            j = getNum(input, i);
+                        }
+                        else if (input[i] == 'D') {
+                            d = getNum(input, i);
+                        }
+                    }
+
+                    if (input[0] == 'Q') {
+                        deviceRequest(t,j,d);
+                    }
+                    else if (input[0] == 'L') {
+                        deviceRelease(t,j,d);
+                    }
                 }
             }
+        
+        cout << CTIME << endl;
+        CTIME++;
 
-            systemConfiguration(t, m, s, q);
+        
+        
+
         }
-
-        else if (input[0] == 'A') {
-
-            int t, j, m, s, r, p;
-            int stop;
-
-            stop = input.find(' ', 2);
-            t = stoi(input.substr(2, stop));
-
-            for (int i = 0; i < input.size(); i++) {
-                if (input[i] == 'J') {
-                    j = getNum(input, i);
-                }
-                else if (input[i] == 'M') {
-                    m = getNum(input, i);
-                }
-                else if (input[i] == 'S') {
-                    s = getNum(input, i);
-                }
-                else if (input[i] == 'R') {
-                    r = getNum(input, i);
-                }
-                else if (input[i] == 'P') {
-                    p = getNum(input, i);
-                }
-            }
-
-            jobArrival(t, j, m, s, r, p);
-        }
-
-        else if (input[0] == 'Q' || input[0] == 'L') {
-
-            int t, j, d;
-            int stop;
-
-            stop = input.find(' ', 2);
-            t = stoi(input.substr(2, stop));
-
-            for (int i = 0; i < input.size(); i++) {
-                if (input[i] == 'J') {
-                    j = getNum(input, i);
-                }
-                else if (input[i] == 'D') {
-                    d = getNum(input, i);
-                }
-            }
-
-            if (input[0] == 'Q') {
-                deviceRequest(t,j,d);
-            }
-            else if (input[0] == 'L') {
-                deviceRelease(t,j,d);
-            }
-        }
+        
     }
+     
+
+
+
 
     inputfile.close();
 
