@@ -23,6 +23,9 @@ queue<Job> HoldQ2;
 queue<Job> WaitQ;
 queue<Job> ReadyQ;
 
+map<int,int> allocation; // First int = Job #, Second int = allocated resources
+map<int,int> need; // First int = Job #, Second int = resources needed
+
 Job jobCreate(int time, int jN, int mM, int nS, int rT, int p) {
     Job j;
     j.time = time;
@@ -41,11 +44,13 @@ void systemConfiguration(int t, int mM, int nS, int tQ) {
     SERIAL = nS;
     QUANTUM = tQ;
 
-    cout << "Time " << CTIME << ' ' << "Mem " << MEMORY << ' ' << "Serial " << SERIAL << ' ' << "Quantum " << QUANTUM << '\n';
+    //cout << "Time " << CTIME << ' ' << "Mem " << MEMORY << ' ' << "Serial " << SERIAL << ' ' << "Quantum " << QUANTUM << '\n';
 }
 
 void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     Job j = jobCreate(time, jN, mM, nS, rT, p);
+    allocation.insert(pair<int,int>(jN,0));
+    need.insert(pair<int,int>(jN,nS));
 
     // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
     // the job is rejected never gets to one of the Hold Queues. 
@@ -74,24 +79,44 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
         //cout << "Job placed in Ready Queue\n";
     }
 
-    cout << "ARRIVAL -> Time: " << time << " Job # " << jN << " Memory: " << mM << " Serial: " << nS << " Runtime: " << rT << " Priority: " << p << '\n';
+    //cout << "ARRIVAL -> Time: " << time << " Job # " << jN << " Memory: " << mM << " Serial: " << nS << " Runtime: " << rT << " Priority: " << p << '\n';
+}
+
+bool safetyCheck() {
+    return false;
 }
 
 void deviceRequest(int time, int jobNum, int numDevices) {
 
-    cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
+    // A job can only request devices when it is running on the CPU
+    Job j = ReadyQ.back();
+    ReadyQ.pop();
+
+    cout << "JOB # -> " << jobNum << ' ';
+    cout << "NEED -> " << need.at(j.jobNum) << '\n';
+
+    // Running Banker's Algorithm to check the request
+    int available = SERIAL;
+
+    if (j.numSerial < need.at(j.jobNum)) {
+
+    }
+
+    //cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
 void deviceRelease(int time, int jobNum, int numDevices) {
 
-    cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
+    //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
 void sysStatusDisplay(int time) {
-    cout << "Hello" <<'\n';
+    //cout << "Hello" <<'\n';
 }
 
 int getNum(string input, int index) {
+    // Finding the index of a variable in the input, and then
+    // reading the value it is set to and saving it
     int stop = input.find(' ', index);
     return stoi(input.substr(index+2, stop));
 }
@@ -188,7 +213,7 @@ int main() {
         }
     
     inputfile.close();
-    cout << CTIME << endl;
+    //cout << CTIME << endl;
     CTIME++;
     
     }
