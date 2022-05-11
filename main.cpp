@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <queue>
+#include <deque>
 #include <map>
 using namespace std;
 
@@ -17,7 +18,7 @@ struct Job {
     int priority;
 };
 
-queue<Job> HoldQ1;
+deque<Job> HoldQ1; // FIFO
 queue<Job> HoldQ2;
 queue<Job> WaitQ;
 queue<Job> ReadyQ;
@@ -56,7 +57,7 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     // Queues, based on its priority, to wait for enough available main memory.
     else if (j.mainMem > MEMORY) {
         if (p == 1) {
-            HoldQ1.push(j);
+            HoldQ1.push_back(j);
             //cout << "Job placed in Hold Queue 1\n";
         }
         else if (p == 2) {
