@@ -96,103 +96,101 @@ int getNum(string input, int index) {
 }
 
 int main() {
+    
+    while(CTIME < 40) {
+       
+        ifstream inputfile;
+        inputfile.open("input.txt");
+        string input;
 
-    ifstream inputfile;
-    inputfile.open("input.txt");
-    char event = ' ';
-    string input;
-    int i = 0;
+        while(getline(inputfile, input)){
+            int stop = input.find(' ', 2);
+            if(stoi(input.substr(2,stop)) == CTIME) {
 
-    while (CTIME < 30) {
-        while(getline(inputfile, input)) {
-                if(getNum(input, 0) == CTIME) {
-                    if (input[0] == 'C') {
+                if (input[0] == 'C') {
 
-                        int t, m, s, q;
-                        int stop; 
+                    int t, m, s, q;
+                    int stop; 
 
-                        stop = input.find(' ', 2);
-                        t = stoi(input.substr(2, stop));
+                    stop = input.find(' ', 2);
+                    t = stoi(input.substr(2, stop));
 
-                        for (int i = 0; i < input.size(); i++) {
-                            if (input[i] == 'M') {
-                                m = getNum(input, i);
-                            }
-                            else if (input[i] == 'S') {
-                                s = getNum(input, i);
-                            }
-                            else if (input[i] == 'Q') {
-                                q = getNum(input, i);
-                            }
+                    for (int i = 0; i < input.size(); i++) {
+                        if (input[i] == 'M') {
+                            m = getNum(input, i);
                         }
-
-                        systemConfiguration(t, m, s, q);
+                        else if (input[i] == 'S') {
+                            s = getNum(input, i);
+                        }
+                        else if (input[i] == 'Q') {
+                            q = getNum(input, i);
+                        }
                     }
 
-                    else if (input[0] == 'A') {
+                    systemConfiguration(t, m, s, q);
+                }
 
-                        int t, j, m, s, r, p;
-                        int stop;
+                else if (input[0] == 'A') {
 
-                        stop = input.find(' ', 2);
-                        t = stoi(input.substr(2, stop));
+                    int t, j, m, s, r, p;
+                    int stop;
 
-                        for (int i = 0; i < input.size(); i++) {
-                            if (input[i] == 'J') {
-                                j = getNum(input, i);
-                            }
-                            else if (input[i] == 'M') {
-                                m = getNum(input, i);
-                            }
-                            else if (input[i] == 'S') {
-                                s = getNum(input, i);
-                            }
-                            else if (input[i] == 'R') {
-                                r = getNum(input, i);
-                            }
-                            else if (input[i] == 'P') {
-                                p = getNum(input, i);
-                            }
+                    stop = input.find(' ', 2);
+                    t = stoi(input.substr(2, stop));
+
+                    for (int i = 0; i < input.size(); i++) {
+                        if (input[i] == 'J') {
+                            j = getNum(input, i);
                         }
-
-                        jobArrival(t, j, m, s, r, p);
+                        else if (input[i] == 'M') {
+                            m = getNum(input, i);
+                        }
+                        else if (input[i] == 'S') {
+                            s = getNum(input, i);
+                        }
+                        else if (input[i] == 'R') {
+                            r = getNum(input, i);
+                        }
+                        else if (input[i] == 'P') {
+                            p = getNum(input, i);
+                        }
                     }
 
-                    else if (input[0] == 'Q' || input[0] == 'L') {
+                    jobArrival(t, j, m, s, r, p);
+                }
 
-                        int t, j, d;
-                        int stop;
+                else if (input[0] == 'Q' || input[0] == 'L') {
 
-                        stop = input.find(' ', 2);
-                        t = stoi(input.substr(2, stop));
+                    int t, j, d;
+                    int stop;
 
-                        for (int i = 0; i < input.size(); i++) {
-                            if (input[i] == 'J') {
-                                j = getNum(input, i);
-                            }
-                            else if (input[i] == 'D') {
-                                d = getNum(input, i);
-                            }
+                    stop = input.find(' ', 2);
+                    t = stoi(input.substr(2, stop));
+
+                    for (int i = 0; i < input.size(); i++) {
+                        if (input[i] == 'J') {
+                            j = getNum(input, i);
                         }
+                        else if (input[i] == 'D') {
+                            d = getNum(input, i);
+                        }
+                    }
 
-                        if (input[0] == 'Q') {
-                            deviceRequest(t,j,d);
-                        }
-                        else if (input[0] == 'L') {
-                            deviceRelease(t,j,d);
-                        }
+                    if (input[0] == 'Q') {
+                        deviceRequest(t,j,d);
+                    }
+                    else if (input[0] == 'L') {
+                        deviceRelease(t,j,d);
                     }
                 }
+            }                   
         }
-        cout << CTIME << '\n';
-        CTIME++;
-    }
-     
-
-
-
-
+    
     inputfile.close();
+    cout << CTIME << endl;
+    CTIME++;
+    
+    }
 
     return 0;
 } 
