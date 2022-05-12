@@ -48,9 +48,11 @@ void systemConfiguration(int t, int mM, int nS, int tQ) {
 }
 
 void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
-    Job j = jobCreate(time, jN, mM, nS, rT, p);
-    allocation.insert(pair<int,int>(jN,0));
-    need.insert(pair<int,int>(jN,nS));
+
+    Job j = jobCreate(time, jN, mM, nS, rT, p); // Creating a job when it arrives
+    allocation.insert(pair<int,int>(jN,0)); // Recording the job's current resource allocation
+    need.insert(pair<int,int>(jN,nS)); // Recording the job's current need
+    cout << "Job #" << jN << " Need: " << need.at(jN) << '\n';
 
     // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
     // the job is rejected never gets to one of the Hold Queues. 
@@ -92,8 +94,8 @@ void deviceRequest(int time, int jobNum, int numDevices) {
     Job j = ReadyQ.back();
     ReadyQ.pop();
 
-    cout << "JOB # -> " << jobNum << ' ';
-    cout << "NEED -> " << need.at(j.jobNum) << '\n';
+    //cout << "JOB # -> " << jobNum << ' ';
+    //cout << "NEED -> " << need.at(j.jobNum) << '\n';
 
     // Running Banker's Algorithm to check the request
     int available = SERIAL;
@@ -111,7 +113,6 @@ void deviceRelease(int time, int jobNum, int numDevices) {
 }
 
 void sysStatusDisplay(int time) {
-    //cout << "Hello" <<'\n';
 }
 
 int getNum(string input, int index) {
