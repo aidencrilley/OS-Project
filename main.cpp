@@ -13,7 +13,7 @@ struct Job {
     int time;
     int jobNum; 
     int mainMem; 
-    int numSerial; 
+    int devices; 
     int runTime; 
     int priority;
 };
@@ -22,16 +22,18 @@ deque<Job> HoldQ1; // FIFO
 queue<Job> HoldQ2;
 queue<Job> WaitQ;
 queue<Job> ReadyQ;
+vector<Job> jobs;
 
 map<int,int> allocation; // First int = Job #, Second int = allocated resources
-map<int,int> need; // First int = Job #, Second int = resources needed
+map<int,int> maxDevices; // First int = Job #, Second int = maximum resources
+map<int,int> need; // First in = Job #, Second int = need
 
 Job jobCreate(int time, int jN, int mM, int nS, int rT, int p) {
     Job j;
     j.time = time;
     j.jobNum = jN;
     j.mainMem = mM;
-    j.numSerial = nS;
+    j.devices = nS;
     j.runTime = rT;
     j.priority = p;
 
@@ -43,20 +45,21 @@ void systemConfiguration(int t, int mM, int nS, int tQ) {
     MEMORY = mM;
     SERIAL = nS;
     QUANTUM = tQ;
-
-    //cout << "Time " << CTIME << ' ' << "Mem " << MEMORY << ' ' << "Serial " << SERIAL << ' ' << "Quantum " << QUANTUM << '\n';
 }
 
 void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
 
     Job j = jobCreate(time, jN, mM, nS, rT, p); // Creating a job when it arrives
     allocation.insert(pair<int,int>(jN,0)); // Recording the job's current resource allocation
+    maxDevices.insert(pair<int,int>(jN,nS)); // Recording the job's maximum devices
     need.insert(pair<int,int>(jN,nS)); // Recording the job's current need
-    cout << "Job #" << jN << " Need: " << need.at(jN) << '\n';
+    jobs.push_back(j); // Adding job to a vector that keeps track of all jobs, will be used for safety check
+
+    cout << "Job #" << jN << " Need: " << maxDevices.at(jN) << '\n';
 
     // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
     // the job is rejected never gets to one of the Hold Queues. 
-    if (j.mainMem > MEMORY || j.numSerial > SERIAL) {
+    if (j.mainMem > MEMORY || j.devices > SERIAL) {
         //cout << "Job rejected due to lack of resources/\n";
     }
 
@@ -84,24 +87,42 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     //cout << "ARRIVAL -> Time: " << time << " Job # " << jN << " Memory: " << mM << " Serial: " << nS << " Runtime: " << rT << " Priority: " << p << '\n';
 }
 
-bool safetyCheck() {
-    return false;
+bool safetyCheck(int jobNum, int numDevices) {
+    
+    // Checking the safety of the system
+    bool flag = false;
+    int available = SERIAL;
+    int alloc = allocation.at(jobNum);
+    int n = need.at(jobNum);
+
+    
 }
 
 void deviceRequest(int time, int jobNum, int numDevices) {
 
-    // A job can only request devices when it is running on the CPU
-    Job j = ReadyQ.back();
-    ReadyQ.pop();
-
-    //cout << "JOB # -> " << jobNum << ' ';
-    //cout << "NEED -> " << need.at(j.jobNum) << '\n';
-
     // Running Banker's Algorithm to check the request
+
+    // 3 temp variables to pretend allocate resources
     int available = SERIAL;
+    int alloc = allocation.at(jobNum);
+    int n = need.at(jobNum);
 
-    if (j.numSerial < need.at(j.jobNum)) {
+    // STEP 1: Checking request <= need
+    if (numDevices <= maxDevices.at(jobNum)) {
+        // STEP 2: Checking request <= available devices
+        if (numDevices < available) {
+            // STEP 3: Pretending to allocate resources and safety check
+            available -= numDevices;
+            alloc += numDevices;
+            n -= numDevices;
 
+            if (safetyCheck) {
+                // If the system is safe, allocate the resources and update the values
+                SERIAL -= numDevices;
+                allocation.at(jobNum) += numDevices;
+                need.at(jobNum) -= numDevices;
+            }
+        }
     }
 
     //cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
@@ -214,7 +235,6 @@ int main() {
         }
     
     inputfile.close();
-    //cout << CTIME << endl;
     CTIME++;
     
     }
