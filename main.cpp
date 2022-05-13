@@ -55,7 +55,7 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     need.insert(pair<int,int>(jN,nS)); // Recording the job's current need
     jobs.push_back(j); // Adding job to a vector that keeps track of all jobs, will be used for safety check
 
-    cout << "Job #" << jN << " Need: " << maxDevices.at(jN) << '\n';
+    //cout << "Job #" << jN << " Need: " << maxDevices.at(jN) << '\n';
 
     // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
     // the job is rejected never gets to one of the Hold Queues. 
@@ -91,7 +91,7 @@ bool safetyCheck(int available, int n) {
     
     // Checking the safety of the system
     bool safe = false;
-    int m = available;
+    int m = available; // available resources
     bool finish[jobs.size()];
 
     int count = 0;
@@ -124,12 +124,12 @@ void deviceRequest(int time, int jobNum, int numDevices) {
 
     // 3 temp variables to pretend allocate resources
     int available = SERIAL;
-    int alloc = allocation.at(jobNum);
-    int max = maxDevices.at(jobNum);
-    int n = need.at(jobNum);
+    int alloc = allocation[jobNum-1];
+    int max = maxDevices[jobNum-1];
+    int n = need[jobNum-1];
 
     // STEP 1: Checking request <= need
-    if (numDevices <= maxDevices.at(jobNum)) {
+    if (numDevices <= maxDevices[jobNum-1]) {
         // STEP 2: Checking request <= available devices
         if (numDevices < available) {
             // STEP 3: Pretending to allocate resources and safety check
@@ -140,11 +140,13 @@ void deviceRequest(int time, int jobNum, int numDevices) {
             if (safetyCheck(available, n)) {
                 // If the system is safe, allocate the resources and update the values
                 SERIAL -= numDevices;
-                allocation.at(jobNum) += numDevices;
-                need.at(jobNum) -= numDevices;
+                allocation[jobNum] += numDevices;
+                need[jobNum-1] -= numDevices;
+                ReadyQ.push(jobs[jobNum-1]);
             }
             else {
                 cout << "This request would cause the system to become unsafe, and can not be granted.\n";
+                WaitQ.push(jobs[jobNum-1]);
             }
         }
     }
@@ -158,6 +160,18 @@ void deviceRelease(int time, int jobNum, int numDevices) {
 }
 
 void sysStatusDisplay(int time) {
+
+    printf("At time %d:\n", time);
+    printf("Current Available Main Memory=%d", MEMORY);
+    printf("Current Devices=%d", SERIAL);
+    printf("Completed Jobs:\n");
+    printf("--------------------------------------------------------\n");
+    printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
+    printf("========================================================\n");
+
+    for (int i = 0; i < jobs.size(); i++) {
+        printf("%d           %d               %d              %d\n", 0, 0, 0, 0);
+    }
 }
 
 int getNum(string input, int index) {
@@ -254,6 +268,13 @@ int main() {
                     else if (input[0] == 'L') {
                         deviceRelease(t,j,d);
                     }
+                }
+
+                else if (input[0] == 'D') {
+
+                    int stop = input.find(' ', 2);
+                    int t = stoi(input.substr(2, stop));
+                    sysStatusDisplay(t);
                 }
             }                   
         }
