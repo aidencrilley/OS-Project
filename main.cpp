@@ -87,15 +87,35 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     //cout << "ARRIVAL -> Time: " << time << " Job # " << jN << " Memory: " << mM << " Serial: " << nS << " Runtime: " << rT << " Priority: " << p << '\n';
 }
 
-bool safetyCheck(int jobNum, int numDevices) {
+bool safetyCheck(int available, int n) {
     
     // Checking the safety of the system
-    bool flag = false;
-    int available = SERIAL;
-    int alloc = allocation.at(jobNum);
-    int n = need.at(jobNum);
+    bool safe = false;
+    int m = available;
+    bool finish[jobs.size()];
 
-    
+    int count = 0;
+
+    for (int i = 0; i < jobs.size(); i++) {
+        finish[i] = false;
+    }
+
+    while (count < jobs.size()) {
+        for (int i = 0; i < jobs.size(); i++) {
+            if (!finish[i] && n <= m) {
+                m += allocation.at(i);
+                finish[i] = true;
+                count++;
+                break;
+            }
+        }
+    }
+
+    if (count == jobs.size()) {
+        safe = true;
+    }
+
+    return safe;
 }
 
 void deviceRequest(int time, int jobNum, int numDevices) {
@@ -105,6 +125,7 @@ void deviceRequest(int time, int jobNum, int numDevices) {
     // 3 temp variables to pretend allocate resources
     int available = SERIAL;
     int alloc = allocation.at(jobNum);
+    int max = maxDevices.at(jobNum);
     int n = need.at(jobNum);
 
     // STEP 1: Checking request <= need
@@ -116,11 +137,14 @@ void deviceRequest(int time, int jobNum, int numDevices) {
             alloc += numDevices;
             n -= numDevices;
 
-            if (safetyCheck) {
+            if (safetyCheck(available, n)) {
                 // If the system is safe, allocate the resources and update the values
                 SERIAL -= numDevices;
                 allocation.at(jobNum) += numDevices;
                 need.at(jobNum) -= numDevices;
+            }
+            else {
+                cout << "This request would cause the system to become unsafe, and can not be granted.\n";
             }
         }
     }
