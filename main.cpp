@@ -103,7 +103,7 @@ bool safetyCheck(int available, int n) {
     while (count < jobs.size()) {
         for (int i = 0; i < jobs.size(); i++) {
             if (!finish[i] && n <= m) {
-                m += allocation.at(i);
+                m += allocation[i];
                 finish[i] = true;
                 count++;
                 break;
@@ -157,6 +157,8 @@ void deviceRequest(int time, int jobNum, int numDevices) {
 void deviceRelease(int time, int jN, int numDevices) {
 
     // Releasing devices and memory once the job comes off of the CPU
+    SERIAL += numDevices;
+    allocation[jN] -= numDevices;
 
     //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
@@ -164,7 +166,7 @@ void deviceRelease(int time, int jN, int numDevices) {
 void sysStatusDisplay(int time) {
 
     printf("At time %d: \n", time);
-    printf("Current Available Main Memory= %d\n", MEMORY);
+    printf("Current Available Main Memory = %d\n", MEMORY);
     printf("Current Devices = %d\n", SERIAL);
     printf("Completed Jobs:\n");
     printf("--------------------------------------------------------\n");
