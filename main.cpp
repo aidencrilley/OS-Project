@@ -105,9 +105,9 @@ bool safetyCheck(int available, int n) {
             if (!finish[i] && n <= m) {
                 m += allocation[i];
                 finish[i] = true;
-                count++;
                 break;
             }
+            count++;
         }
     }
 
@@ -127,7 +127,6 @@ void deviceRequest(int time, int jobNum, int numDevices) {
     int alloc = allocation[jobNum];
     int max = maxDevices[jobNum];
     int n = need[jobNum];
-    //cout << maxDevices[jobNum] << endl;
     
     // STEP 1: Checking request <= need
     if (numDevices <= maxDevices[jobNum]) {
@@ -142,16 +141,16 @@ void deviceRequest(int time, int jobNum, int numDevices) {
                 SERIAL -= numDevices;
                 allocation[jobNum] += numDevices;
                 need[jobNum] -= numDevices;
-                ReadyQ.push(jobs[jobNum]);
+                ReadyQ.push(jobs[jobNum-1]);
                 cout << "This request was accepted." << endl;
             }
             else {
                 cout << "This request would cause the system to become unsafe, and can not be granted.\n";
-                WaitQ.push(jobs[jobNum]);
+                WaitQ.push(jobs[jobNum-1]);
             }
         }
+        
     }
-
     //cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
