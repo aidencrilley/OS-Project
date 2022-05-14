@@ -141,6 +141,7 @@ void deviceRequest(int time, int jobNum, int numDevices) {
                 SERIAL -= numDevices;
                 allocation[jobNum] += numDevices;
                 need[jobNum] -= numDevices;
+                ReadyQ.pop();
                 ReadyQ.push(jobs[jobNum-1]);
                 cout << "This request was accepted." << endl;
             }
