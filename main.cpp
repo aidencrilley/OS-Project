@@ -124,29 +124,30 @@ void deviceRequest(int time, int jobNum, int numDevices) {
 
     // 3 temp variables to pretend allocate resources
     int available = SERIAL;
-    int alloc = allocation[jobNum-1];
-    int max = maxDevices[jobNum-1];
-    int n = need[jobNum-1];
-
+    int alloc = allocation[jobNum];
+    int max = maxDevices[jobNum];
+    int n = need[jobNum];
+    //cout << maxDevices[jobNum] << endl;
+    
     // STEP 1: Checking request <= need
-    if (numDevices <= maxDevices[jobNum-1]) {
+    if (numDevices <= maxDevices[jobNum]) {
         // STEP 2: Checking request <= available devices
         if (numDevices < available) {
             // STEP 3: Pretending to allocate resources and safety check
             available -= numDevices;
             alloc += numDevices;
             n -= numDevices;
-
             if (safetyCheck(available, n)) {
                 // If the system is safe, allocate the resources and update the values
                 SERIAL -= numDevices;
                 allocation[jobNum] += numDevices;
-                need[jobNum-1] -= numDevices;
-                ReadyQ.push(jobs[jobNum-1]);
+                need[jobNum] -= numDevices;
+                ReadyQ.push(jobs[jobNum]);
+                cout << "This request was accepted." << endl;
             }
             else {
-                //cout << "This request would cause the system to become unsafe, and can not be granted.\n";
-                WaitQ.push(jobs[jobNum-1]);
+                cout << "This request would cause the system to become unsafe, and can not be granted.\n";
+                WaitQ.push(jobs[jobNum]);
             }
         }
     }
