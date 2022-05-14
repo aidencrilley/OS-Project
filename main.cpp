@@ -18,8 +18,8 @@ struct Job {
     int priority;
 };
 
-deque<Job> HoldQ1; // FIFO
-queue<Job> HoldQ2;
+queue<Job> HoldQ1; // FIFO
+deque<Job> HoldQ2;
 queue<Job> WaitQ;
 queue<Job> ReadyQ;
 vector<Job> jobs;
@@ -67,11 +67,11 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     // Queues, based on its priority, to wait for enough available main memory.
     else if (j.mainMem > MEMORY) {
         if (p == 1) {
-            HoldQ1.push_back(j);
+            HoldQ1.push(j);
             //cout << "Job placed in Hold Queue 1\n";
         }
         else if (p == 2) {
-            HoldQ2.push(j);
+            HoldQ2.push_back(j);
             //cout << "Job placed in Hold Queue 2\n";
         }
     }
@@ -172,10 +172,42 @@ void sysStatusDisplay(int time) {
     printf("--------------------------------------------------------\n");
     printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
     printf("========================================================\n");
+   
 
     for (int i = 0; i < jobs.size(); i++) {
         printf("%d           %d               %d              %d\n", jobs[i].jobNum, jobs[i].time, 0, 0);
     }
+
+    queue<Job> tempHold = HoldQ1;
+
+    printf("Hold Queue 1:\n");
+    printf("--------------------------------------------------------\n");
+    printf("Job ID    Run Time\n");
+    printf("========================================================\n");
+    while(!tempHold.empty()) {
+        printf("%d       %d\n", tempHold.front().jobNum, tempHold.front().runTime);
+		tempHold.pop();
+    }
+
+    printf("Hold Queue 2:\n");
+    printf("--------------------------------------------------------\n");
+    printf("Job ID    Run Time\n");
+    printf("========================================================\n");
+    for(int i = 0;i<HoldQ2.size();i++) {
+        printf("%d     %d\n", HoldQ2[i].jobNum, HoldQ2[i].runTime);
+    }
+
+    queue<Job> readyTemp = ReadyQ;
+    
+    printf("Ready Queue:\n");
+    printf("--------------------------------------------------------\n");
+    printf("Job ID    Run Time      Time Accrued\n");
+    printf("========================================================\n");
+    while(!readyTemp.empty()) {
+        printf("%d       %d       %d\n", readyTemp.front().jobNum, readyTemp.front().runTime, 0);
+		readyTemp.pop();
+    }    
+
 }
 
 int getNum(string input, int index) {
@@ -190,7 +222,7 @@ int main() {
     while(CTIME < 10000) {
        
         ifstream inputfile;
-        inputfile.open("input.txt");
+        inputfile.open("testinput.txt");
         string input;
 
         while(getline(inputfile, input)){
