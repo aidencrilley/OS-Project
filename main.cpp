@@ -145,7 +145,7 @@ void deviceRequest(int time, int jobNum, int numDevices) {
                 ReadyQ.push(jobs[jobNum-1]);
             }
             else {
-                cout << "This request would cause the system to become unsafe, and can not be granted.\n";
+                //cout << "This request would cause the system to become unsafe, and can not be granted.\n";
                 WaitQ.push(jobs[jobNum-1]);
             }
         }
@@ -154,23 +154,25 @@ void deviceRequest(int time, int jobNum, int numDevices) {
     //cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
-void deviceRelease(int time, int jobNum, int numDevices) {
+void deviceRelease(int time, int jN, int numDevices) {
+
+    // Releasing devices and memory once the job comes off of the CPU
 
     //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
 void sysStatusDisplay(int time) {
 
-    printf("At time %d:\n", time);
-    printf("Current Available Main Memory=%d", MEMORY);
-    printf("Current Devices=%d", SERIAL);
+    printf("At time %d: \n", time);
+    printf("Current Available Main Memory= %d\n", MEMORY);
+    printf("Current Devices = %d\n", SERIAL);
     printf("Completed Jobs:\n");
     printf("--------------------------------------------------------\n");
     printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
     printf("========================================================\n");
 
     for (int i = 0; i < jobs.size(); i++) {
-        printf("%d           %d               %d              %d\n", 0, 0, 0, 0);
+        printf("%d           %d               %d              %d\n", jobs[i].jobNum, jobs[i].time, 0, 0);
     }
 }
 
@@ -183,7 +185,7 @@ int getNum(string input, int index) {
 
 int main() {
     
-    while(CTIME < 40) {
+    while(CTIME < 10000) {
        
         ifstream inputfile;
         inputfile.open("input.txt");
