@@ -105,6 +105,10 @@ bool safetyCheck(int available, int n) {
             if (!finish[i] && n <= m) {
                 m += allocation[i];
                 finish[i] = true;
+
+                if (need[i] -= 1 != 0)
+                    need[i] -= 1;
+
                 break;
             }
             count++;
@@ -136,17 +140,24 @@ void deviceRequest(int time, int jobNum, int numDevices) {
             available -= numDevices;
             alloc += numDevices;
             n -= numDevices;
+
             if (safetyCheck(available, n)) {
                 // If the system is safe, allocate the resources and update the values
-                SERIAL -= numDevices;
+                Job j = ReadyQ.front();
+                ReadyQ.pop();
+                SERIAL += numDevices;
+                allocation[j.jobNum] += numDevices;
+                need[j.jobNum] -= numDevices;
+                ReadyQ.push(j);
+                
+                /*SERIAL -= numDevices;
                 allocation[jobNum] += numDevices;
                 need[jobNum] -= numDevices;
-                ReadyQ.pop();
-                ReadyQ.push(jobs[jobNum-1]);
-                cout << "This request was accepted." << endl;
+                ReadyQ.push(jobs[jobNum-1]);*/
+                //cout << "This request was accepted." << endl;
             }
             else {
-                cout << "This request would cause the system to become unsafe, and can not be granted.\n";
+                //cout << "This request would cause the system to become unsafe, and can not be granted.\n";
                 WaitQ.push(jobs[jobNum-1]);
             }
         }
@@ -174,10 +185,11 @@ void sysStatusDisplay(int time) {
     printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
     printf("========================================================\n");
    
-
     for (int i = 0; i < jobs.size(); i++) {
         printf("%d           %d               %d              %d\n", jobs[i].jobNum, jobs[i].time, 0, 0);
     }
+
+    printf("\n");
 
     queue<Job> tempHold = HoldQ1;
 
@@ -185,18 +197,24 @@ void sysStatusDisplay(int time) {
     printf("--------------------------------------------------------\n");
     printf("Job ID    Run Time\n");
     printf("========================================================\n");
+
     while(!tempHold.empty()) {
         printf("%d       %d\n", tempHold.front().jobNum, tempHold.front().runTime);
 		tempHold.pop();
     }
 
+    printf("\n");
+
     printf("Hold Queue 2:\n");
     printf("--------------------------------------------------------\n");
     printf("Job ID    Run Time\n");
     printf("========================================================\n");
+
     for(int i = 0;i<HoldQ2.size();i++) {
         printf("%d     %d\n", HoldQ2[i].jobNum, HoldQ2[i].runTime);
     }
+
+    printf("\n");
 
     queue<Job> readyTemp = ReadyQ;
     
@@ -204,10 +222,13 @@ void sysStatusDisplay(int time) {
     printf("--------------------------------------------------------\n");
     printf("Job ID    Run Time      Time Accrued\n");
     printf("========================================================\n");
+
     while(!readyTemp.empty()) {
         printf("%d       %d       %d\n", readyTemp.front().jobNum, readyTemp.front().runTime, 0);
 		readyTemp.pop();
-    }    
+    }
+
+    printf("\n");
 
 }
 
@@ -223,7 +244,7 @@ int main() {
     while(CTIME < 10000) {
        
         ifstream inputfile;
-        inputfile.open("testinput.txt");
+        inputfile.open("input.txt");
         string input;
 
         while(getline(inputfile, input)){
