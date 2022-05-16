@@ -25,6 +25,7 @@ deque<Job> HoldQ2;
 queue<Job> WaitQ;
 queue<Job> ReadyQ;
 vector<Job> jobs;
+vector<Job> FinishedJobs;
 
 map<int,int> allocation; // First int = Job #, Second int = allocated resources
 map<int,int> maxDevices; // First int = Job #, Second int = maximum resources
@@ -171,24 +172,20 @@ void deviceRelease(Job j, int numDevices) {
     //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
-void cpuCycle(Job j) {
+bool cpuCycle(Job j) {
 
     // Simulating once CPU cycle
-    int count = 0;
     bool finish = false;
-
-    while (count < QUANTUM) {
-        if (j.runTime == j.timeAccrued) {
-            j.timeFinished = CTIME;
-            finish = true;
-            break;
-        }
-        else {
-            j.timeAccrued++;
-        }
-        count++;
+    if (j.runTime == j.timeAccrued) {
+        j.timeFinished = CTIME;
+        finish = true;
+        FinishedJobs.push_back(j);
     }
-    if (!finish) { ReadyQ.push(j); }
+    else {
+        j.timeAccrued++;
+        //cout << j.timeAccrued << endl;
+    }
+    return finish;
 }
 
 void sysStatusDisplay(int time) {
@@ -201,8 +198,8 @@ void sysStatusDisplay(int time) {
     printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
     printf("========================================================\n");
    
-    for (int i = 0; i < jobs.size(); i++) {
-        printf("%d           %d               %d              %d\n", jobs[i].jobNum, jobs[i].time, 0, 0);
+    for (int i = 0; i < FinishedJobs.size(); i++) {
+        printf("%d           %d               %d              %d\n", FinishedJobs[i].jobNum, FinishedJobs[i].time, FinishedJobs[i].timeFinished, FinishedJobs[i].timeFinished - FinishedJobs[i].time);
     }
 
     printf("\n");
@@ -240,7 +237,7 @@ void sysStatusDisplay(int time) {
     printf("========================================================\n");
 
     while(!readyTemp.empty()) {
-        printf("%d       %d       %d\n", readyTemp.front().jobNum, readyTemp.front().runTime, 0);
+        printf("%d       %d       %d\n", readyTemp.front().jobNum, readyTemp.front().runTime, readyTemp.front().timeAccrued);
 		readyTemp.pop();
     }
 
@@ -256,7 +253,7 @@ int getNum(string input, int index) {
 }
 
 int main() {
-    
+    int count = 0;
     while(CTIME < 10000) {
        
         ifstream inputfile;
@@ -361,10 +358,21 @@ int main() {
         }
     
     inputfile.close();
+    /*
+    if(!ReadyQ.empty()){
+
+        Job j = ReadyQ.front();
+        ReadyQ.pop();
+        if(count%QUANTUM < QUANTUM) {
+            if(!cpuCycle(j)) {
+                ReadyQ.push(j);
+            }
+        }
+        count++;
+        */ 
     CTIME++;
     
     }
-
     return 0;
 } 
 
