@@ -14,7 +14,9 @@ struct Job {
     int jobNum; 
     int mainMem; 
     int devices; 
-    int runTime; 
+    int runTime;
+    int timeAccrued;
+    int timeFinished;
     int priority;
 };
 
@@ -35,6 +37,8 @@ Job jobCreate(int time, int jN, int mM, int nS, int rT, int p) {
     j.mainMem = mM;
     j.devices = nS;
     j.runTime = rT;
+    j.timeAccrued = 0;
+    j.timeFinished = 0;
     j.priority = p;
 
     return j;
@@ -87,7 +91,7 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     //cout << "ARRIVAL -> Time: " << time << " Job # " << jN << " Memory: " << mM << " Serial: " << nS << " Runtime: " << rT << " Priority: " << p << '\n';
 }
 
-bool safetyCheck(int available, int n) {
+bool safetyCheck(int available, int allocation, int n) {
     
     // Checking the safety of the system
     bool safe = false;
@@ -103,7 +107,7 @@ bool safetyCheck(int available, int n) {
     while (count < jobs.size()) {
         for (int i = 0; i < jobs.size(); i++) {
             if (!finish[i] && n <= m) {
-                m += allocation[i];
+                m += allocation;
                 finish[i] = true;
 
                 if (need[i] -= 1 != 0)
@@ -122,43 +126,35 @@ bool safetyCheck(int available, int n) {
     return safe;
 }
 
-void deviceRequest(int time, int jobNum, int numDevices) {
+void deviceRequest(Job j, int numDevices) {
 
     // Running Banker's Algorithm to check the request
 
     // 3 temp variables to pretend allocate resources
     int available = SERIAL;
-    int alloc = allocation[jobNum];
-    int max = maxDevices[jobNum];
-    int n = need[jobNum];
+    int alloc = allocation[j.jobNum];
+    int max = maxDevices[j.jobNum];
+    int n = need[j.jobNum];
     
     // STEP 1: Checking request <= need
-    if (numDevices <= maxDevices[jobNum]) {
+    if (numDevices <= n) {
         // STEP 2: Checking request <= available devices
-        if (numDevices < available) {
+        if (numDevices <= available) {
             // STEP 3: Pretending to allocate resources and safety check
             available -= numDevices;
-            alloc += numDevices;
-            n -= numDevices;
+            alloc += j.devices;
+            n -= j.devices;
 
-            if (safetyCheck(available, n)) {
+            if (safetyCheck(available, alloc, n)) {
                 // If the system is safe, allocate the resources and update the values
-                Job j = ReadyQ.front();
-                ReadyQ.pop();
-                SERIAL += numDevices;
+                SERIAL -= j.devices;
                 allocation[j.jobNum] += numDevices;
                 need[j.jobNum] -= numDevices;
                 ReadyQ.push(j);
-                
-                /*SERIAL -= numDevices;
-                allocation[jobNum] += numDevices;
-                need[jobNum] -= numDevices;
-                ReadyQ.push(jobs[jobNum-1]);*/
-                //cout << "This request was accepted." << endl;
             }
             else {
                 //cout << "This request would cause the system to become unsafe, and can not be granted.\n";
-                WaitQ.push(jobs[jobNum-1]);
+                WaitQ.push(j);
             }
         }
         
@@ -166,13 +162,33 @@ void deviceRequest(int time, int jobNum, int numDevices) {
     //cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
-void deviceRelease(int time, int jN, int numDevices) {
+void deviceRelease(Job j, int numDevices) {
 
     // Releasing devices and memory once the job comes off of the CPU
     SERIAL += numDevices;
-    allocation[jN] -= numDevices;
+    allocation[j.jobNum] -= numDevices;
 
     //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
+}
+
+void cpuCycle(Job j) {
+
+    // Simulating once CPU cycle
+    int count = 0;
+    bool finish = false;
+
+    while (count < QUANTUM) {
+        if (j.runTime == j.timeAccrued) {
+            j.timeFinished = CTIME;
+            finish = true;
+            break;
+        }
+        else {
+            j.timeAccrued++;
+        }
+        count++;
+    }
+    if (!finish) { ReadyQ.push(j); }
 }
 
 void sysStatusDisplay(int time) {
@@ -320,11 +336,18 @@ int main() {
                         }
                     }
 
+                    Job a;
+                    for (int i = 0; i < jobs.size(); i++) {
+                        if (jobs.at(i).jobNum == j) {
+                            a = jobs.at(i);
+                        }
+                    }
+
                     if (input[0] == 'Q') {
-                        deviceRequest(t,j,d);
+                        deviceRequest(a,d);
                     }
                     else if (input[0] == 'L') {
-                        deviceRelease(t,j,d);
+                        deviceRelease(a,d);
                     }
                 }
 
