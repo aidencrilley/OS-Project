@@ -148,7 +148,7 @@ void deviceRequest(Job j, int numDevices) {
 
             if (safetyCheck(available, alloc, n)) {
                 // If the system is safe, allocate the resources and update the values
-                SERIAL -= j.devices;
+                SERIAL -= numDevices;
                 allocation[j.jobNum] += numDevices;
                 need[j.jobNum] -= numDevices;
                 ReadyQ.push(j);
@@ -172,6 +172,8 @@ void deviceRelease(Job j, int numDevices) {
     //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
+
+/*
 bool cpuCycle(Job j) {
 
     // Simulating once CPU cycle
@@ -187,7 +189,7 @@ bool cpuCycle(Job j) {
     }
     return finish;
 }
-
+*/
 void sysStatusDisplay(int time) {
 
     printf("At time %d: \n", time);
@@ -197,13 +199,17 @@ void sysStatusDisplay(int time) {
     printf("--------------------------------------------------------\n");
     printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
     printf("========================================================\n");
-   
+    
+
+
+    
     for (int i = 0; i < FinishedJobs.size(); i++) {
         printf("%d           %d               %d              %d\n", FinishedJobs[i].jobNum, FinishedJobs[i].time, FinishedJobs[i].timeFinished, FinishedJobs[i].timeFinished - FinishedJobs[i].time);
     }
-
+    
     printf("\n");
 
+    
     queue<Job> tempHold = HoldQ1;
 
     printf("Hold Queue 1:\n");
@@ -242,7 +248,7 @@ void sysStatusDisplay(int time) {
     }
 
     printf("\n");
-
+    
 }
 
 int getNum(string input, int index) {

@@ -1,0 +1,27 @@
+Justin Anthony & Aiden Crilley
+        Design Approach
+
+Our first attempt at dividing the problem into chunks and working on it in smaller pieces
+involved establishing data structures for each process queue being used, data types for 
+incoming jobs, and being able to read in the information from the text file (which honestly took longer than
+expected). 
+
+We then moved forward to testing the 5 cases of possible input based on the first letter in
+the input file (C, A, Q, D, or L) and prescribing a different method for each. Job arrival was simple, 
+as we just adhered to the 3 steps outlined in the project pdf. The system configuration was just a matter
+of setting the global variables (time, memory, devices, quantum). Device request proved to be a little difficult,
+as implementing Banker's algorithm in the safety check took a while to get running correctly. But, we 
+included screenshots of evidence that it is working correctly with examples of requests that would put the 
+system into an unsafe mode being rejected, meaning that the algorithm is working. The device release was more 
+or less a matter of just reallocating the devices to the global variable. And the system display was just a matter of 
+formatting a series of print statements correctly.
+
+After finishing these methods, we moved onto formatting the queues so that they would actually simulate being pushed 
+onto the CPU and "running" so to speak, but this is where we ran into trouble. We were unable to figure out how to 
+call our cpuCycle() function in the correct way so as to actually simulate processes being executed and moved from
+the ready queue to the CPU and back, and could only figure out in theory how the function should actually work. After hours
+of fiddling with it, we felt we had exhausted all our options and were unable to move forward past that. 
+
+This was really the big part of the project, and although everything else worked, we were unable to actually simulate
+CPU runtime, even though jobs were moving between different queues as they should have been. Hopefully the output files and 
+screenshots we have included demonstrate this adequately. 
