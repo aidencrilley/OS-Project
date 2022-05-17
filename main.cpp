@@ -1,3 +1,6 @@
+// CISC361: Operating Systems Project
+// Authors: Justin Anthony and Aiden Crilley
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,6 +21,9 @@ struct Job {
     int timeAccrued;
     int timeFinished;
     int priority;
+
+    int allocated;
+    int need;
 };
 
 queue<Job> HoldQ1; // FIFO
@@ -42,6 +48,9 @@ Job jobCreate(int time, int jN, int mM, int nS, int rT, int p) {
     j.timeFinished = 0;
     j.priority = p;
 
+    j.allocated = 0;
+    j.need = j.devices;
+
     return j;
 }
 
@@ -60,12 +69,10 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     need.insert(pair<int,int>(jN,nS)); // Recording the job's current need
     jobs.push_back(j); // Adding job to a vector that keeps track of all jobs, will be used for safety check
 
-    //cout << "Job #" << jN << " Need: " << maxDevices.at(jN) << '\n';
-
     // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
     // the job is rejected never gets to one of the Hold Queues. 
     if (j.mainMem > MEMORY || j.devices > SERIAL) {
-        //cout << "Job rejected due to lack of resources/\n";
+        cout << "Job rejected due to lack of resources/\n";
     }
 
     // Case 2: If  there  is  not  enough  available  main  memory  for  the  job,  the  job  is  put  in  one  of  the  Hold 
@@ -73,23 +80,18 @@ void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
     else if (j.mainMem > MEMORY) {
         if (p == 1) {
             HoldQ1.push(j);
-            //cout << "Job placed in Hold Queue 1\n";
         }
         else if (p == 2) {
             HoldQ2.push_back(j);
-            //cout << "Job placed in Hold Queue 2\n";
         }
     }
 
     // Case 3: If there is enough main memory for the job, then a process is created for the job, the required 
     // main memory is allocated to the process, and the process is put in the Ready Queue.  
-    else if (j.mainMem < MEMORY) {
+    else if (j.mainMem <= MEMORY) {
         MEMORY -= j.mainMem;
         ReadyQ.push(j);
-        //cout << "Job placed in Ready Queue\n";
     }
-
-    //cout << "ARRIVAL -> Time: " << time << " Job # " << jN << " Memory: " << mM << " Serial: " << nS << " Runtime: " << rT << " Priority: " << p << '\n';
 }
 
 bool safetyCheck(int available, int allocation, int n) {
@@ -97,16 +99,17 @@ bool safetyCheck(int available, int allocation, int n) {
     // Checking the safety of the system
     bool safe = false;
     int m = available; // available resources
-    bool finish[jobs.size()];
+    vector<bool> finish;
+    finish.resize(jobs.size());
 
     int count = 0;
 
-    for (int i = 0; i < jobs.size(); i++) {
+    for (int i = 0; i < finish.size(); i++) {
         finish[i] = false;
     }
 
-    while (count < jobs.size()) {
-        for (int i = 0; i < jobs.size(); i++) {
+    while (count < finish.size()) {
+        for (int i = 0; i < finish.size(); i++) {
             if (!finish[i] && n <= m) {
                 m += allocation;
                 finish[i] = true;
@@ -120,11 +123,18 @@ bool safetyCheck(int available, int allocation, int n) {
         }
     }
 
-    if (count == jobs.size()) {
+    if (count == finish.size()) {
         safe = true;
     }
 
     return safe;
+}
+
+void deviceRelease(Job j, int numDevices) {
+
+    // Releasing devices and memory once the job comes off of the CPU
+    j.allocated -= numDevices;
+    SERIAL += numDevices;
 }
 
 void deviceRequest(Job j, int numDevices) {
@@ -133,9 +143,9 @@ void deviceRequest(Job j, int numDevices) {
 
     // 3 temp variables to pretend allocate resources
     int available = SERIAL;
-    int alloc = allocation[j.jobNum];
-    int max = maxDevices[j.jobNum];
-    int n = need[j.jobNum];
+    int alloc = j.allocated;
+    int max = j.devices;
+    int n = j.need;
     
     // STEP 1: Checking request <= need
     if (numDevices <= n) {
@@ -149,47 +159,25 @@ void deviceRequest(Job j, int numDevices) {
             if (safetyCheck(available, alloc, n)) {
                 // If the system is safe, allocate the resources and update the values
                 SERIAL -= numDevices;
-                allocation[j.jobNum] += numDevices;
-                need[j.jobNum] -= numDevices;
-                ReadyQ.push(j);
+                j.allocated += numDevices;
+                j.need -= numDevices;
+                j.timeAccrued++;
+
+                if (j.timeAccrued == j.runTime) {
+                    j.timeFinished = CTIME;
+                    FinishedJobs.push_back(j);
+                    deviceRelease(j, numDevices);
+                }
+                else { ReadyQ.push(j); }
             }
             else {
-                //cout << "This request would cause the system to become unsafe, and can not be granted.\n";
                 WaitQ.push(j);
             }
         }
         
     }
-    //cout << "REQUEST -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
 }
 
-void deviceRelease(Job j, int numDevices) {
-
-    // Releasing devices and memory once the job comes off of the CPU
-    SERIAL += numDevices;
-    allocation[j.jobNum] -= numDevices;
-
-    //cout << "RELEASE -> Time: " << time << " Job # " << jobNum << " Serial: " << numDevices << '\n';
-}
-
-
-/*
-bool cpuCycle(Job j) {
-
-    // Simulating once CPU cycle
-    bool finish = false;
-    if (j.runTime == j.timeAccrued) {
-        j.timeFinished = CTIME;
-        finish = true;
-        FinishedJobs.push_back(j);
-    }
-    else {
-        j.timeAccrued++;
-        //cout << j.timeAccrued << endl;
-    }
-    return finish;
-}
-*/
 void sysStatusDisplay(int time) {
 
     printf("At time %d: \n", time);
@@ -207,6 +195,20 @@ void sysStatusDisplay(int time) {
         printf("%d           %d               %d              %d\n", FinishedJobs[i].jobNum, FinishedJobs[i].time, FinishedJobs[i].timeFinished, FinishedJobs[i].timeFinished - FinishedJobs[i].time);
     }
     
+    printf("\n");
+
+    queue<Job> waitTemp(WaitQ);
+    
+    printf("Wait Queue:\n");
+    printf("--------------------------------------------------------\n");
+    printf("Job ID    Run Time    Time Accrued\n");
+    printf("========================================================\n");
+
+    while(!waitTemp.empty()) {
+        printf("%d       %d       %d\n", waitTemp.front().jobNum, waitTemp.front().runTime, waitTemp.front().timeAccrued);
+		waitTemp.pop();
+    }
+
     printf("\n");
 
     
@@ -235,20 +237,21 @@ void sysStatusDisplay(int time) {
 
     printf("\n");
 
-    queue<Job> readyTemp = ReadyQ;
+    //queue<Job> readyTemp = ReadyQ;
+    queue<Job> readyTemp(ReadyQ);
     
     printf("Ready Queue:\n");
     printf("--------------------------------------------------------\n");
-    printf("Job ID    Run Time      Time Accrued\n");
+    printf("Job ID    Run Time    Time Accrued\n");
     printf("========================================================\n");
+
+    int count = 0;
 
     while(!readyTemp.empty()) {
         printf("%d       %d       %d\n", readyTemp.front().jobNum, readyTemp.front().runTime, readyTemp.front().timeAccrued);
 		readyTemp.pop();
+        count++;
     }
-
-    printf("\n");
-    
 }
 
 int getNum(string input, int index) {
@@ -339,12 +342,8 @@ int main() {
                         }
                     }
 
-                    Job a;
-                    for (int i = 0; i < jobs.size(); i++) {
-                        if (jobs.at(i).jobNum == j) {
-                            a = jobs.at(i);
-                        }
-                    }
+                    Job a = ReadyQ.front();
+                    ReadyQ.pop();
 
                     if (input[0] == 'Q') {
                         deviceRequest(a,d);
@@ -364,18 +363,6 @@ int main() {
         }
     
     inputfile.close();
-    /*
-    if(!ReadyQ.empty()){
-
-        Job j = ReadyQ.front();
-        ReadyQ.pop();
-        if(count%QUANTUM < QUANTUM) {
-            if(!cpuCycle(j)) {
-                ReadyQ.push(j);
-            }
-        }
-        count++;
-        */ 
     CTIME++;
     
     }
