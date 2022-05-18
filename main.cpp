@@ -33,8 +33,6 @@ queue<Job> ReadyQ;
 vector<Job> jobs;
 vector<Job> FinishedJobs;
 
-map<int,int> allocation; // First int = Job #, Second int = allocated resources
-map<int,int> maxDevices; // First int = Job #, Second int = maximum resources
 map<int,int> need; // First in = Job #, Second int = need
 
 Job jobCreate(int time, int jN, int mM, int nS, int rT, int p) {
@@ -64,15 +62,12 @@ void systemConfiguration(int t, int mM, int nS, int tQ) {
 void jobArrival(int time, int jN, int mM, int nS, int rT, int p) {
 
     Job j = jobCreate(time, jN, mM, nS, rT, p); // Creating a job when it arrives
-    allocation.insert(pair<int,int>(jN,0)); // Recording the job's current resource allocation
-    maxDevices.insert(pair<int,int>(jN,nS)); // Recording the job's maximum devices
-    need.insert(pair<int,int>(jN,nS)); // Recording the job's current need
     jobs.push_back(j); // Adding job to a vector that keeps track of all jobs, will be used for safety check
 
     // Case 1: If there is not enough total main memory or total number of devices in the system for the job, 
     // the job is rejected never gets to one of the Hold Queues. 
     if (j.mainMem > MEMORY || j.devices > SERIAL) {
-        cout << "Job rejected due to lack of resources/\n";
+        cout << "Job rejected due to lack of resources\n";
     }
 
     // Case 2: If  there  is  not  enough  available  main  memory  for  the  job,  the  job  is  put  in  one  of  the  Hold 
@@ -153,8 +148,8 @@ void deviceRequest(Job j, int numDevices) {
         if (numDevices <= available) {
             // STEP 3: Pretending to allocate resources and safety check
             available -= numDevices;
-            alloc += j.devices;
-            n -= j.devices;
+            alloc += numDevices;
+            n -= numDevices;
 
             if (safetyCheck(available, alloc, n)) {
                 // If the system is safe, allocate the resources and update the values
@@ -188,9 +183,6 @@ void sysStatusDisplay(int time) {
     printf("Job ID    Arrival Time    Finish Time    Turnaround Time\n");
     printf("========================================================\n");
     
-
-
-    
     for (int i = 0; i < FinishedJobs.size(); i++) {
         printf("%d           %d               %d              %d\n", FinishedJobs[i].jobNum, FinishedJobs[i].time, FinishedJobs[i].timeFinished, FinishedJobs[i].timeFinished - FinishedJobs[i].time);
     }
@@ -210,9 +202,8 @@ void sysStatusDisplay(int time) {
     }
 
     printf("\n");
-
     
-    queue<Job> tempHold = HoldQ1;
+    queue<Job> tempHold(HoldQ1);
 
     printf("Hold Queue 1:\n");
     printf("--------------------------------------------------------\n");
@@ -237,7 +228,6 @@ void sysStatusDisplay(int time) {
 
     printf("\n");
 
-    //queue<Job> readyTemp = ReadyQ;
     queue<Job> readyTemp(ReadyQ);
     
     printf("Ready Queue:\n");
